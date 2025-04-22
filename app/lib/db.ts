@@ -1,23 +1,40 @@
 import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getFirestore, Transaction } from "firebase-admin/firestore";
+import { getFirestore, Transaction, Firestore } from "firebase-admin/firestore";
 
-// Firebase Admin SDKの初期化
-const firebaseAdminConfig = {
-  credential: cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-  }),
-};
+// サーバーサイドの場合のみFirebase Adminを初期化
+let db: Firestore | null = null;
 
-// Initialize Firebase Admin
-const apps = getApps();
-const app = apps.length === 0 ? initializeApp(firebaseAdminConfig) : apps[0];
-const db = getFirestore(app);
+// Edge Runtimeや静的生成の環境ではなく、サーバーサイドの場合のみ初期化
+if (typeof window === "undefined" && process.env.FIREBASE_PROJECT_ID) {
+  try {
+    // Firebase Admin SDKの初期化
+    const firebaseAdminConfig = {
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      }),
+    };
+
+    // Initialize Firebase Admin
+    const apps = getApps();
+    const app =
+      apps.length === 0 ? initializeApp(firebaseAdminConfig) : apps[0];
+    db = getFirestore(app);
+  } catch (error) {
+    console.error("Firebase Admin初期化エラー:", error);
+  }
+}
 
 // 水やりカウントを取得する関数
 export async function getWaterCount() {
   try {
+    // 静的生成の場合はダミーデータを返す
+    if (!db) {
+      console.log("静的生成環境: ダミーデータを返します");
+      return 10; // 静的ビルド時のデフォルト値
+    }
+
     // waterコレクションのcounterドキュメントを取得
     const counterRef = db.collection("water").doc("counter");
     const doc = await counterRef.get();
@@ -40,6 +57,12 @@ export async function getWaterCount() {
 // 水やりカウントを増加させる関数
 export async function incrementWaterCount() {
   try {
+    // 静的生成の場合はダミーデータを返す
+    if (!db) {
+      console.log("静的生成環境: ダミーデータを返します");
+      return 11; // 静的ビルド時のデフォルト値+1
+    }
+
     // トランザクションを使用してカウントを安全に更新
     const counterRef = db.collection("water").doc("counter");
 

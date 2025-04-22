@@ -67,3 +67,30 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
    ```
 
 上記の環境変数を設定したら、アプリケーションを起動できます。
+
+## GitHub Pagesへのデプロイ
+
+このプロジェクトはGitHub Actionsを使用してGitHub Pagesへ自動デプロイするように設定されています。以下の手順で設定してください：
+
+1. GitHubリポジトリの「Settings」>「Secrets and variables」>「Actions」に移動し、以下の秘密情報を追加します：
+
+   ```
+   FIREBASE_PROJECT_ID
+   FIREBASE_CLIENT_EMAIL
+   FIREBASE_PRIVATE_KEY
+   NEXT_PUBLIC_FIREBASE_API_KEY
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+   NEXT_PUBLIC_FIREBASE_APP_ID
+   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+   ```
+
+2. GitHubリポジトリの「Settings」>「Pages」に移動し、「Build and deployment」セクションで以下のように設定します：
+
+   - Source: GitHub Actions
+
+3. mainブランチにプッシュするか、手動でワークフローを実行すると、自動的にGitHub Pagesにデプロイされます。
+
+4. デプロイされたアプリケーションは `https://<ユーザー名>.github.io/Portforio/` でアクセスできます。
