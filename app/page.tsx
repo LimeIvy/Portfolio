@@ -1,20 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { products } from "@/utils/products";
-import { blogs } from "@/utils/blogs";
+import { products } from "@/components/products";
+import { blogs } from "@/components/blogs";
 import { FaXTwitter, FaGithub } from "react-icons/fa6";
 import { GrGrow } from "react-icons/gr";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { FaReact, FaNodeJs, FaGitAlt, FaDocker } from "react-icons/fa";
+import {
+  SiNextdotjs,
+  SiTailwindcss,
+  SiTypescript,
+  SiJavascript,
+} from "react-icons/si";
+import { RiSupabaseFill } from "react-icons/ri";
+
+// スキルデータ
+const skills = [
+  { name: "React", icon: FaReact, level: 2 },
+  { name: "Next.js", icon: SiNextdotjs, level: 3 },
+  { name: "TypeScript", icon: SiTypescript, level: 3 },
+  { name: "JavaScript", icon: SiJavascript, level: 3 },
+  { name: "Node.js", icon: FaNodeJs, level: 1 },
+  { name: "TailwindCSS", icon: SiTailwindcss, level: 3 },
+  { name: "Git", icon: FaGitAlt, level: 2 },
+  { name: "Docker", icon: FaDocker, level: 1 },
+  { name: "Supabase", icon: RiSupabaseFill, level: 3 },
+];
 
 export default function Home() {
   const aboutRef = useRef(null);
+  const skillsRef = useRef(null);
   const blogsRef = useRef(null);
   const productsRef = useRef(null);
 
   const isAboutInView = useInView(aboutRef, { once: true, amount: 0.2 });
+  const isSkillsInView = useInView(skillsRef, { once: true, amount: 0.2 });
   const isBlogsInView = useInView(blogsRef, { once: true, amount: 0.2 });
   const isProductsInView = useInView(productsRef, { once: true, amount: 0.2 });
 
@@ -38,14 +61,33 @@ export default function Home() {
     show: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
+  // 星評価を表示するコンポーネント
+  const StarRating = ({ level }: { level: number }) => {
+    return (
+      <div className="flex">
+        {[...Array(5)].map((_, i) => (
+          <span
+            key={i}
+            className={`text-2xl ${i < level ? "text-yellow-400" : "text-gray-300"}`}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div>
       {/* header */}
       <header className="sticky top-0 z-10 flex items-center justify-between py-5">
         <div>
           <button className="ml-6 cursor-pointer text-2xl font-bold text-gray-700">
-            <Link href="/" className="hover:shadow-lg p-3 rounded-lg hover:text-gray-900">
-              Koki&apos;s Portforio
+            <Link
+              href="/"
+              className="relative inline-block px-2 py-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gray-600 after:transition-all after:duration-800 hover:after:w-full"
+            >
+              Koki&apos;s Portfolio
             </Link>
           </button>
         </div>
@@ -56,6 +98,14 @@ export default function Home() {
               className="relative inline-block after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gray-600 after:transition-all after:duration-400 hover:after:w-full"
             >
               About
+            </Link>
+          </button>
+          <button className="cursor-pointer text-2xl font-semibold text-gray-600 hover:text-gray-800">
+            <Link
+              href="#skills"
+              className="relative inline-block after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gray-600 after:transition-all after:duration-400 hover:after:w-full"
+            >
+              Skills
             </Link>
           </button>
           <button className="cursor-pointer text-2xl font-semibold text-gray-600 hover:text-gray-800">
@@ -76,6 +126,7 @@ export default function Home() {
           </button>
         </div>
       </header>
+
       {/* main */}
       <main className="flex min-h-screen flex-col justify-between pt-20">
         {/* about */}
@@ -90,6 +141,37 @@ export default function Home() {
           </motion.div>
         </div>
 
+        {/* skills */}
+        <div id="skills" className="mb-20 scroll-mt-24" ref={skillsRef}>
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate={isSkillsInView ? "show" : "hidden"}
+            className="ml-5 text-7xl text-gray-600"
+          >
+            Skills
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-3 gap-8 px-10 mt-10"
+            variants={container}
+            initial="hidden"
+            animate={isSkillsInView ? "show" : "hidden"}
+          >
+            {skills.map((skill) => (
+              <motion.div
+                key={skill.name}
+                className="flex flex-col items-center rounded-lg p-6 shadow-lg transition-shadow duration-300 hover:shadow-xl"
+                variants={item}
+              >
+                <skill.icon className="mb-4 text-6xl text-blue-600" />
+                <h3 className="mb-2 text-xl font-bold">{skill.name}</h3>
+                <StarRating level={skill.level} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+
         {/* blog */}
         <div id="blogs" className="mb-20" ref={blogsRef}>
           <motion.h1
@@ -98,7 +180,7 @@ export default function Home() {
             initial="hidden"
             animate={isBlogsInView ? "show" : "hidden"}
           >
-            Blogs
+            <p className="text-7xl text-gray-600">Blogs</p>
           </motion.h1>
           <motion.div
             className="relative grid grid-cols-3 gap-7 px-4"
@@ -149,7 +231,7 @@ export default function Home() {
             initial="hidden"
             animate={isProductsInView ? "show" : "hidden"}
           >
-            Products
+            <p className="text-7xl text-gray-600">Products</p>
           </motion.h1>
           <motion.div
             className="relative grid grid-cols-3 gap-10 px-10"
@@ -189,13 +271,12 @@ export default function Home() {
 
       {/* footer */}
       <footer className="flex h-20 items-center justify-between px-10">
-        <h1 className="text-2xl text-gray-600">© 2025 Matsubara</h1>
+        <h1 className="text-2xl text-gray-600">
+          © 2025. Koki&apos;s Portfolio
+        </h1>
 
         <div className="flex gap-5">
-        <a
-            href="/grow"
-            className="text-gray-600 hover:text-gray-900"
-          >
+          <a href="/grow" className="text-gray-600 hover:text-gray-900">
             <GrGrow size={30} />
           </a>
           <a

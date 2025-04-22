@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getWaterCount, incrementWaterCount } from "@/app/lib/db";
+import { getWaterCount, incrementWaterCount } from "@/lib/db";
 
 // GETリクエスト - 現在の水やり回数を取得
 export async function GET() {

@@ -4,12 +4,16 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+import { Rain, rainStyle } from "@/components/rain";
+import { Snow, snowStyle } from "@/components/snow";
+
 const Grow = () => {
   const [waterCount, setWaterCount] = useState(0);
   const [isWatered, setIsWatered] = useState(false);
   const [canWater, setCanWater] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [weather, setWeather] = useState<string | null>(null);
 
   useEffect(() => {
     // ローカルストレージから今日水やりしたかどうかを確認
@@ -148,33 +152,51 @@ const Grow = () => {
     }
   };
 
+  async function getWeather() {
+    const response = await fetch("/api/weather");
+    const data = await response.json();
+    console.log(data);
+    setWeather(data.weather);
+  }
+
+  useEffect(() => {
+    getWeather();
+  }, []);
+
   return (
     <div>
       {/* header */}
       <header className="sticky top-0 z-10 flex items-center justify-between py-5">
         <div>
-          <button className="ml-6 cursor-pointer text-2xl font-bold text-gray-700">
+          <button className="ml-12 cursor-pointer text-2xl font-bold text-gray-700">
             <Link href="/" className="">
-              Matsubara
+              Koki&apos;s Portfolio
             </Link>
           </button>
         </div>
+        <div className="mr-12 text-2xl font-bold text-gray-700">
+          現在の名古屋の天気：
+          {weather == "晴れ"
+            ? "🌞"
+            : weather == "雨"
+              ? "🌧️"
+              : weather == "雪"
+                ? "❄️"
+                : weather == "曇り"
+                  ? "☁️"
+                  : "⛅"}
+        </div>
       </header>
 
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
-        <div className="absolute top-4 left-4">
-          <Link href="/" className="text-xl text-gray-600 hover:text-gray-900">
-            ← ホームに戻る
-          </Link>
-        </div>
+      <main
+        className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center"
+        style={weather === "雪" ? snowStyle : rainStyle}
+      >
+        {/* エフェクト */}
+        {weather == "雨" ? <Rain /> : weather == "雪" ? <Snow /> : ""}
 
-        <motion.div
-          className="flex w-full max-w-md flex-col items-center justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="mb-8 text-4xl font-bold text-green-700">植物の成長</h1>
+        <div className="flex w-full max-w-md flex-col items-center justify-center">
+          <h1 className="mb-5 text-4xl font-bold text-green-700">成長を支援</h1>
 
           {error && (
             <motion.div
@@ -192,7 +214,7 @@ const Grow = () => {
             </motion.div>
           )}
 
-          <div className="relative mb-10 h-64 w-64">
+          <div className="relative mb-5">
             {/* 植物のイラスト - 水やり回数に応じた成長段階を表示 */}
             <motion.div
               className="flex h-full w-full items-center justify-center"
@@ -200,31 +222,31 @@ const Grow = () => {
               transition={{ duration: 0.5 }}
             >
               {isLoading ? (
-                <div className="text-4xl">読み込み中...</div>
+                <div className="w-40 text-center text-4xl">読み込み中...</div>
               ) : waterCount < 5 ? (
-                <div className="text-8xl">🌱</div>
+                <div className="text-[160px]">🌱</div>
               ) : waterCount < 15 ? (
-                <div className="text-8xl">🌿</div>
+                <div className="text-[160px]">🌿</div>
               ) : (
-                <div className="text-8xl">🌳</div>
+                <div className="text-[160px]">🌳</div>
               )}
             </motion.div>
           </div>
 
           <div className="mb-6 text-center">
-            <p className="mb-2 text-xl text-gray-700">
-              総水やり回数:{" "}
+            <p className="mb-3 text-xl font-semibold text-gray-700">
+              合計水やり回数:{" "}
               <span className="font-bold">
                 {isLoading ? "..." : `${waterCount}回`}
               </span>
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-700">
               {isLoading
                 ? "読み込み中..."
-                : waterCount < 5
-                  ? "もう少し水が必要です..."
-                  : waterCount < 15
-                    ? "すくすく育っています！"
+                : waterCount < 100
+                  ? "もっと水をあげて応援してあげてください..."
+                  : waterCount < 500
+                    ? "すくすく育っています！！"
                     : "立派に成長しました！"}
             </p>
           </div>
@@ -245,19 +267,15 @@ const Grow = () => {
             {isLoading
               ? "読み込み中..."
               : isWatered
-                ? "今日は水やり済み"
+                ? "今日の水やりは済んでいます"
                 : "水やりをする (1日1回)"}
           </motion.button>
 
           <p className="mt-4 text-sm text-gray-500">
-            {isLoading
-              ? ""
-              : isWatered
-                ? "明日また来てください！"
-                : "水をあげて植物を育てましょう！"}
+            {isLoading ? "" : isWatered ? "" : "水をあげて植物を育てましょう！"}
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };
