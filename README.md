@@ -34,3 +34,36 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Firebase の設定
+
+このプロジェクトはデータベースとして Firebase Firestore を使用しています。以下の手順で設定してください：
+
+1. [Firebase Console](https://console.firebase.google.com/) で新しいプロジェクトを作成
+
+2. Firestore データベースを作成
+
+3. プロジェクト設定から新しいウェブアプリを追加
+
+4. Firebase Admin SDK の秘密鍵を取得
+
+   - プロジェクト設定 > サービスアカウント > 新しい秘密鍵の生成
+
+5. `.env.local` ファイルを作成し、以下の環境変数を設定：
+
+   ```
+   # Firebase サーバーサイド (Admin) 設定
+   FIREBASE_PROJECT_ID=your-project-id
+   FIREBASE_CLIENT_EMAIL=your-client-email@project-id.iam.gserviceaccount.com
+   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+
+   # Firebase クライアントサイド設定
+   NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+   ```
+
+上記の環境変数を設定したら、アプリケーションを起動できます。

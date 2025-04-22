@@ -1,39 +1,38 @@
-import { neon } from '@neondatabase/serverless';
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getFirestore, Transaction } from "firebase-admin/firestore";
 
-// 環境変数からデータベースURLを取得
-const DATABASE_URL = process.env.DATABASE_URL;
+// Firebase Admin SDKの初期化
+const firebaseAdminConfig = {
+  credential: cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  }),
+};
 
-if (!DATABASE_URL) {
-  throw new Error('DATABASE_URL環境変数が設定されていません');
-}
-
-// Neon接続クライアントを初期化
-export const sql = neon(DATABASE_URL);
+// Initialize Firebase Admin
+const apps = getApps();
+const app = apps.length === 0 ? initializeApp(firebaseAdminConfig) : apps[0];
+const db = getFirestore(app);
 
 // 水やりカウントを取得する関数
 export async function getWaterCount() {
   try {
-    // waterテーブルが存在するか確認し、存在しなければ作成
-    await sql`
-      CREATE TABLE IF NOT EXISTS water (
-        id SERIAL PRIMARY KEY,
-        count INTEGER NOT NULL DEFAULT 0
-      )
-    `;
+    // waterコレクションのcounterドキュメントを取得
+    const counterRef = db.collection("water").doc("counter");
+    const doc = await counterRef.get();
 
-    // レコードが存在するか確認
-    const records = await sql`SELECT count FROM water LIMIT 1`;
-    
-    // レコードが存在しなければ初期レコードを作成
-    if (records.length === 0) {
-      await sql`INSERT INTO water (count) VALUES (0)`;
+    // ドキュメントが存在しない場合は新規作成
+    if (!doc.exists) {
+      await counterRef.set({ count: 0 });
       return 0;
     }
-    
-    // 現在のカウントを返す
-    return records[0].count;
+
+    // カウント値を返す
+    const data = doc.data();
+    return data?.count || 0;
   } catch (error) {
-    console.error('水やりカウントの取得に失敗しました:', error);
+    console.error("水やりカウントの取得に失敗しました:", error);
     return 0;
   }
 }
@@ -41,30 +40,29 @@ export async function getWaterCount() {
 // 水やりカウントを増加させる関数
 export async function incrementWaterCount() {
   try {
-    // レコードが存在するか確認
-    const records = await sql`SELECT id, count FROM water LIMIT 1`;
-    
-    if (records.length === 0) {
-      // レコードが存在しない場合は初期レコードを作成して1を返す
-      await sql`INSERT INTO water (count) VALUES (1)`;
-      return 1;
-    } else {
-      // レコードが存在する場合はIDを指定して更新
-      const id = records[0].id;
-      const currentCount = records[0].count;
+    // トランザクションを使用してカウントを安全に更新
+    const counterRef = db.collection("water").doc("counter");
+
+    return await db.runTransaction(async (transaction: Transaction) => {
+      const doc = await transaction.get(counterRef);
+
+      // ドキュメントが存在しない場合は作成
+      if (!doc.exists) {
+        transaction.set(counterRef, { count: 1 });
+        return 1;
+      }
+
+      // 現在のカウント値を取得
+      const currentCount = doc.data()?.count || 0;
       const newCount = currentCount + 1;
-      
-      const result = await sql`
-        UPDATE water 
-        SET count = ${newCount}
-        WHERE id = ${id}
-        RETURNING count
-      `;
-      
-      return result[0]?.count || newCount;
-    }
+
+      // カウント値を更新
+      transaction.update(counterRef, { count: newCount });
+
+      return newCount;
+    });
   } catch (error) {
-    console.error('水やりカウントの更新に失敗しました:', error);
+    console.error("水やりカウントの更新に失敗しました:", error);
     throw error; // エラーを再スローしてデバッグしやすくする
   }
-} 
+}
