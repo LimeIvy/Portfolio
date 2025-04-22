@@ -44,8 +44,8 @@ export default function Home() {
       <header className="sticky top-0 z-10 flex items-center justify-between py-5">
         <div>
           <button className="ml-6 cursor-pointer text-2xl font-bold text-gray-700">
-            <Link href="/" className="">
-              Matsubara
+            <Link href="/" className="hover:shadow-lg p-3 rounded-lg hover:text-gray-900">
+              Koki&apos;s Portforio
             </Link>
           </button>
         </div>

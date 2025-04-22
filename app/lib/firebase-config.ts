@@ -1,6 +1,5 @@
 // Firebase クライアント側の設定ファイル
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
 // Firebaseの構成オブジェクト
@@ -16,7 +15,6 @@ const firebaseConfig = {
 
 // Firebaseを初期化
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
-export { analytics, db };
+export { db };

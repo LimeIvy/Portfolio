@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto_Slab  } from "next/font/google";
 import "./globals.css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const RobotoSlabFont = Roboto_Slab({
   weight: "400",
@@ -17,12 +18,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+
   return (
     <html lang="ja" className="scroll-smooth">
-      <body
-        className={`${RobotoSlabFont.className}`}
-      >
+      <body className={`${RobotoSlabFont.className}`}>
         {children}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   );
