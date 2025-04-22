@@ -3,6 +3,29 @@
 body {
   background-color: #fffcf2;
 }
+
 header {
   background-color: #f3eedb;
+}
+
+footer {
+  background-color: #f3eedb;
+}
+
+/* スクロールバーのカスタマイズ */
+::-webkit-scrollbar {
+  width: 13px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3eedb;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0d2af;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cbbea1;
 }
