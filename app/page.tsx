@@ -130,7 +130,7 @@ export default function Home() {
       {/* main */}
       <main className="flex min-h-screen flex-col justify-between pt-20">
         {/* about */}
-        <div id="about" className="mb-20" ref={aboutRef}>
+        <div id="about" className="mb-30 scroll-mt-24" ref={aboutRef}>
           <motion.div
             variants={fadeIn}
             initial="hidden"
@@ -139,10 +139,49 @@ export default function Home() {
           >
             About
           </motion.div>
+
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate={isAboutInView ? "show" : "hidden"}
+            className="mx-8 mt-15 grid grid-cols-1 gap-6 md:grid-cols-2"
+          >
+            <div className="rounded-4xl bg-white p-6 shadow-xl">
+              <h2 className="mb-4 text-2xl font-bold text-gray-700">学歴</h2>
+              <p className="text-gray-600">・中京大学工学部情報工学科 3年</p>
+            </div>
+
+            <div className="rounded-4xl bg-white p-6 shadow-xl">
+              <h2 className="mb-4 text-2xl font-bold text-gray-700">実績</h2>
+              <p className="text-gray-600">
+                ・2025年3月 SysHack2025 最優秀賞 & 企業賞
+              </p>
+              <p className="text-gray-600">
+                ・2025年4月 中京大学プログラミングサークル 「Terminal」設立
+              </p>
+            </div>
+
+            <div className="rounded-4xl bg-white p-6 shadow-xl">
+              <h2 className="mb-4 text-2xl font-bold text-gray-700">趣味</h2>
+              <p className="text-gray-600">・PCゲーム</p>
+              <p className="text-gray-600">・個人開発</p>
+              <p className="text-gray-600">・アニメ</p>
+            </div>
+
+            <div className="rounded-4xl bg-white p-6 shadow-xl">
+              <h2 className="mb-4 text-2xl font-bold text-gray-700">
+                好きな言語・技術
+              </h2>
+              <p className="text-gray-600">・Next.js</p>
+              <p className="text-gray-600">・TypeScript</p>
+              <p className="text-gray-600">・TailwindCSS</p>
+              <p className="text-gray-600">・Supabase</p>
+            </div>
+          </motion.div>
         </div>
 
         {/* skills */}
-        <div id="skills" className="mb-20 scroll-mt-24" ref={skillsRef}>
+        <div id="skills" className="mb-30 scroll-mt-24" ref={skillsRef}>
           <motion.div
             variants={fadeIn}
             initial="hidden"
@@ -153,7 +192,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-3 gap-8 px-10 mt-10"
+            className="mt-10 grid grid-cols-3 gap-8 px-10"
             variants={container}
             initial="hidden"
             animate={isSkillsInView ? "show" : "hidden"}
@@ -173,7 +212,7 @@ export default function Home() {
         </div>
 
         {/* blog */}
-        <div id="blogs" className="mb-20" ref={blogsRef}>
+        <div id="blogs" className="mb-30 scroll-mt-24" ref={blogsRef}>
           <motion.h1
             className="mb-6 ml-5 text-7xl text-gray-600"
             variants={fadeIn}
@@ -224,7 +263,7 @@ export default function Home() {
         </div>
 
         {/* products */}
-        <div id="products" className="mb-20" ref={productsRef}>
+        <div id="products" className="mb-30 scroll-mt-24" ref={productsRef}>
           <motion.h1
             className="mb-15 ml-5 text-7xl text-gray-600"
             variants={fadeIn}
