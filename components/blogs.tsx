@@ -1,32 +1,20 @@
-interface Blog {
-    name: string;
-    content: string;
-    url: string;
+export interface Blog {
+  title: string;
+  url: string;
+  created_at: string;
 }
 
-export const blogs: Blog[] = [
-/*     {
-      name: "Blog1",
-      content:
-        "SysHack2025にて、同じ研究室の3人チームで作成した、待ち合わせをもっと楽にするアプリケーションです。 現在テスト用サイトを公開しています。",
-      url: "https://matchai-next.vercel.app/",
-    },
-    {
-      name: "Blog2",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
-      url: "https://matchai.com",
-    },
-    {
-      name: "Blog3",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
-      url: "https://matchai.com",
-    },
-    {
-      name: "Blog4",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
-      url: "https://matchai.com",
-    }, */
-  ];
+// APIからデータを取得する関数 (コンポーネント外で定義)
+export async function fetchBlogs() {
+  try {
+    const response = await fetch("/api/v2/items");
+    if (!response.ok) {
+      throw new Error("Failed to fetch blogs");
+    }
+    const data: Blog[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    return [];
+  }
+}

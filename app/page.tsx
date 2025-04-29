@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { fetchBlogs } from "@/components/blogs";
 import { products } from "@/components/products";
-import { blogs } from "@/components/blogs";
 import { FaXTwitter, FaGithub } from "react-icons/fa6";
 import { GrGrow } from "react-icons/gr";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { FaReact, FaNodeJs, FaGitAlt, FaDocker } from "react-icons/fa";
 import {
   SiNextdotjs,
@@ -16,6 +16,7 @@ import {
   SiJavascript,
 } from "react-icons/si";
 import { RiSupabaseFill } from "react-icons/ri";
+import { Blog } from "@/components/blogs";
 
 // スキルデータ
 const skills = [
@@ -40,6 +41,16 @@ export default function Home() {
   const isSkillsInView = useInView(skillsRef, { once: true, amount: 0.2 });
   const isBlogsInView = useInView(blogsRef, { once: true, amount: 0.2 });
   const isProductsInView = useInView(productsRef, { once: true, amount: 0.2 });
+
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+
+  useEffect(() => {
+    const loadBlogs = async () => {
+      const fetchedBlogs = await fetchBlogs();
+      setBlogs(fetchedBlogs);
+    };
+    loadBlogs();
+  }, []); 
 
   const container = {
     hidden: { opacity: 0 },
@@ -233,26 +244,26 @@ export default function Home() {
                 variants={item}
               >
                 <p className="text-5xl font-light text-gray-400">
-                  Coming soon...
+                  Loading blogs...
                 </p>
               </motion.div>
             ) : (
               blogs.map((blog) => (
                 <motion.div
-                  key={blog.name}
-                  className="group relative aspect-square overflow-hidden rounded-xl border-1 bg-gray-200"
+                  key={blog.title}
+                  className="relative aspect-square overflow-hidden rounded-xl border-1 bg-gray-200"
                   variants={item}
                 >
                   <Link
                     href={blog.url}
                     className="relative z-5 block h-full w-full"
                   >
-                    <div className="bg-opacity-50 absolute inset-0 flex flex-col items-center justify-center bg-black p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-60">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-green-400 hover:bg-green-500 p-4">
                       <h2 className="mb-2 text-xl font-bold text-white">
-                        {blog.name}
+                        {blog.title}
                       </h2>
-                      <p className="line-clamp-3 text-center text-sm text-white sm:line-clamp-5">
-                        {blog.content}
+                      <p className="text-sm text-white">
+                        {new Date(blog.created_at).toLocaleDateString("ja-JP")}
                       </p>
                     </div>
                   </Link>
