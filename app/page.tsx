@@ -2,34 +2,87 @@
 
 import Link from "next/link";
 import { fetchBlogs } from "@/components/blogs";
-import { products } from "@/components/products";
+import { products } from "@/data/products";
 import { FaXTwitter, FaGithub } from "react-icons/fa6";
-import { GrGrow } from "react-icons/gr";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { FaReact, FaNodeJs, FaGitAlt, FaDocker } from "react-icons/fa";
+import { SiHono, SiPrisma } from "react-icons/si";
+import { FaReact, FaGitAlt, FaDocker } from "react-icons/fa";
 import {
   SiNextdotjs,
   SiTailwindcss,
   SiTypescript,
-  SiJavascript,
 } from "react-icons/si";
 import { RiSupabaseFill } from "react-icons/ri";
 import { Blog } from "@/components/blogs";
+import useSWR from "swr";
+import type { Variants } from "framer-motion";
+import Image from "next/image";
 
 // スキルデータ
 const skills = [
   { name: "React", icon: FaReact, level: 2 },
-  { name: "Next.js", icon: SiNextdotjs, level: 3 },
+  { name: "Next.js", icon: SiNextdotjs, level: 4 },
   { name: "TypeScript", icon: SiTypescript, level: 3 },
-  { name: "JavaScript", icon: SiJavascript, level: 3 },
-  { name: "Node.js", icon: FaNodeJs, level: 1 },
-  { name: "TailwindCSS", icon: SiTailwindcss, level: 3 },
+  { name: "Hono ", icon: SiHono, level: 3 },
+  { name: "TailwindCSS", icon: SiTailwindcss, level: 4 },
   { name: "Git", icon: FaGitAlt, level: 2 },
   { name: "Docker", icon: FaDocker, level: 1 },
   { name: "Supabase", icon: RiSupabaseFill, level: 3 },
+  { name: "prisma", icon: SiPrisma, level: 3 }
 ];
+
+// ブログ型定義
+interface BlogType {
+  title: string;
+  url: string;
+  created_at: string;
+}
+
+// OGP取得用フック
+function useOgp(url: string) {
+  const fetcher = (apiUrl: string) => fetch(apiUrl).then(res => res.json());
+  const { data, error, isLoading } = useSWR(url ? `/api/ogp?url=${encodeURIComponent(url)}` : null, fetcher);
+  return {
+    ogp: data,
+    isLoading,
+    isError: error,
+  };
+}
+
+// ブログカード（OGP付き）
+function BlogCardWithOgp({ blog, variants }: { blog: BlogType; variants: Variants }) {
+  const { ogp, isLoading } = useOgp(blog.url);
+  return (
+    <motion.div
+      key={blog.title}
+      className="relative aspect-square overflow-hidden"
+      variants={variants}
+    >
+      <Link
+        href={blog.url}
+        className="relative z-5 block h-full w-full"
+      >
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 border-1 rounded-xl">
+          {isLoading ? (
+            <div className="w-full h-32 flex items-center justify-center text-gray-600">ブログを取得中...</div>
+          ) : ogp && ogp.image ? (
+            <Image src={ogp.image} alt={ogp.title || blog.title} className="w-full h-full object-cover rounded" width={400} height={200} />
+          ) : (
+            <div className="w-full h-32 flex items-center justify-center text-gray-600">No Image</div>
+          )}
+          <h2 className="mb-2 text-xl font-bold text-gray-600">
+            {ogp?.title || blog.title}
+          </h2>
+          <p className="text-sm text-gray-600">
+            {ogp?.description}
+          </p>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const aboutRef = useRef(null);
@@ -50,7 +103,7 @@ export default function Home() {
       setBlogs(fetchedBlogs);
     };
     loadBlogs();
-  }, []); 
+  }, []);
 
   const container = {
     hidden: { opacity: 0 },
@@ -159,34 +212,38 @@ export default function Home() {
           >
             <div className="rounded-4xl bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-2xl font-bold text-gray-700">学歴</h2>
-              <p className="text-gray-600">・中京大学工学部情報工学科 3年</p>
+              <p className="text-gray-600 mb-1">2023年3月 愛知県立豊明高等学校 卒業</p>
+              <p className="text-gray-600 mb-1">2023年4月 中京大学工学部情報工学科 入学</p>
+              <p className="text-gray-600">2027年3月 中京大学工学部情報工学科 卒業予定</p>
             </div>
 
             <div className="rounded-4xl bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-2xl font-bold text-gray-700">実績</h2>
-              <p className="text-gray-600">
-                ・2025年3月 SysHack2025 最優秀賞 & 企業賞
+              <p className="text-gray-600 mb-1">
+                ・2025年3月 SysHack2025 最優秀賞 & 企業賞(TechTrain様)
+              </p>
+              <p className="text-gray-600 mb-1">
+                ・2025年4月 中京大学プログラミングサークル 「Terminal」設立
               </p>
               <p className="text-gray-600">
-                ・2025年4月 中京大学プログラミングサークル 「Terminal」設立
+                ・2025年5月 技育博 企業賞(サイバーエージェント様)
               </p>
             </div>
 
             <div className="rounded-4xl bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-2xl font-bold text-gray-700">趣味</h2>
-              <p className="text-gray-600">・PCゲーム</p>
+              <p className="text-gray-600 mb-1">・PCゲーム</p>
               <p className="text-gray-600">・個人開発</p>
-              <p className="text-gray-600">・アニメ</p>
             </div>
 
             <div className="rounded-4xl bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-2xl font-bold text-gray-700">
                 好きな言語・技術
               </h2>
-              <p className="text-gray-600">・Next.js</p>
-              <p className="text-gray-600">・TypeScript</p>
-              <p className="text-gray-600">・TailwindCSS</p>
-              <p className="text-gray-600">・Supabase</p>
+              <p className="text-gray-600 mb-1">・Next.js</p>
+              <p className="text-gray-600 mb-1">・TailwindCSS</p>
+              <p className="text-gray-600 mb-1">・Supabase</p>
+              <p className="text-gray-600">・Prisma</p>
             </div>
           </motion.div>
         </div>
@@ -203,7 +260,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="mt-10 grid grid-cols-3 gap-8 px-10"
+            className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-10"
             variants={container}
             initial="hidden"
             animate={isSkillsInView ? "show" : "hidden"}
@@ -230,7 +287,7 @@ export default function Home() {
             initial="hidden"
             animate={isBlogsInView ? "show" : "hidden"}
           >
-            <p className="text-7xl text-gray-600">Blogs</p>
+            <p className="text-7xl text-gray-600 mb-10">Blogs</p>
           </motion.h1>
           <motion.div
             className="relative grid grid-cols-3 gap-7 px-4"
@@ -249,25 +306,7 @@ export default function Home() {
               </motion.div>
             ) : (
               blogs.map((blog) => (
-                <motion.div
-                  key={blog.title}
-                  className="relative aspect-square overflow-hidden rounded-xl border-1 bg-gray-200"
-                  variants={item}
-                >
-                  <Link
-                    href={blog.url}
-                    className="relative z-5 block h-full w-full"
-                  >
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-green-400 hover:bg-green-500 p-4">
-                      <h2 className="mb-2 text-xl font-bold text-white">
-                        {blog.title}
-                      </h2>
-                      <p className="text-sm text-white">
-                        {new Date(blog.created_at).toLocaleDateString("ja-JP")}
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
+                <BlogCardWithOgp key={blog.title} blog={blog} variants={item} />
               ))
             )}
           </motion.div>
@@ -292,7 +331,7 @@ export default function Home() {
             {products.map((product) => (
               <motion.div
                 key={product.name}
-                className="group relative aspect-square overflow-hidden rounded-xl border-1 bg-gray-200"
+                className="group relative aspect-square overflow-hidden"
                 variants={item}
               >
                 <Link
@@ -326,9 +365,6 @@ export default function Home() {
         </h1>
 
         <div className="flex gap-5">
-          <a href="/grow" className="text-gray-600 hover:text-gray-900">
-            <GrGrow size={30} />
-          </a>
           <a
             href="https://x.com/Lime_Ivy1221"
             target="_blank"

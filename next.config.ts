@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: [
+      "qiita-user-contents.imgix.net",
+      // 必要に応じて他の外部ドメインも追加
+    ],
+  },
 };
 
 export default nextConfig;
