@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { fetchBlogs } from "@/components/blogs";
+import { fetchBlogs, Blog, BlogCardWithOgp } from "@/components/blogsOGP";
 import { products } from "@/data/products";
 import { FaXTwitter, FaGithub } from "react-icons/fa6";
 import { motion } from "framer-motion";
@@ -15,10 +15,9 @@ import {
   SiTypescript,
 } from "react-icons/si";
 import { RiSupabaseFill } from "react-icons/ri";
-import { Blog } from "@/components/blogs";
-import useSWR from "swr";
-import type { Variants } from "framer-motion";
-import Image from "next/image";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import React from "react";
 
 // スキルデータ
 const skills = [
@@ -30,59 +29,8 @@ const skills = [
   { name: "Git", icon: FaGitAlt, level: 2 },
   { name: "Docker", icon: FaDocker, level: 1 },
   { name: "Supabase", icon: RiSupabaseFill, level: 3 },
-  { name: "prisma", icon: SiPrisma, level: 3 }
+  { name: "prisma", icon: SiPrisma, level: 3 },
 ];
-
-// ブログ型定義
-interface BlogType {
-  title: string;
-  url: string;
-  created_at: string;
-}
-
-// OGP取得用フック
-function useOgp(url: string) {
-  const fetcher = (apiUrl: string) => fetch(apiUrl).then(res => res.json());
-  const { data, error, isLoading } = useSWR(url ? `/api/ogp?url=${encodeURIComponent(url)}` : null, fetcher);
-  return {
-    ogp: data,
-    isLoading,
-    isError: error,
-  };
-}
-
-// ブログカード（OGP付き）
-function BlogCardWithOgp({ blog, variants }: { blog: BlogType; variants: Variants }) {
-  const { ogp, isLoading } = useOgp(blog.url);
-  return (
-    <motion.div
-      key={blog.title}
-      className="relative aspect-square overflow-hidden"
-      variants={variants}
-    >
-      <Link
-        href={blog.url}
-        className="relative z-5 block h-full w-full"
-      >
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 border-1 rounded-xl">
-          {isLoading ? (
-            <div className="w-full h-32 flex items-center justify-center text-gray-600">ブログを取得中...</div>
-          ) : ogp && ogp.image ? (
-            <Image src={ogp.image} alt={ogp.title || blog.title} className="w-full h-full object-cover rounded" width={400} height={200} />
-          ) : (
-            <div className="w-full h-32 flex items-center justify-center text-gray-600">No Image</div>
-          )}
-          <h2 className="mb-2 text-xl font-bold text-gray-600">
-            {ogp?.title || blog.title}
-          </h2>
-          <p className="text-sm text-gray-600">
-            {ogp?.description}
-          </p>
-        </div>
-      </Link>
-    </motion.div>
-  );
-}
 
 export default function Home() {
   const aboutRef = useRef(null);
@@ -238,7 +186,7 @@ export default function Home() {
 
             <div className="rounded-4xl bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-2xl font-bold text-gray-700">
-                好きな言語・技術
+                技術スタック
               </h2>
               <p className="text-gray-600 mb-1">・Next.js</p>
               <p className="text-gray-600 mb-1">・TailwindCSS</p>
@@ -323,37 +271,57 @@ export default function Home() {
             <p className="text-7xl text-gray-600">Products</p>
           </motion.h1>
           <motion.div
-            className="relative grid grid-cols-3 gap-10 px-10"
+            className="px-10"
             variants={container}
             initial="hidden"
             animate={isProductsInView ? "show" : "hidden"}
           >
-            {products.map((product) => (
-              <motion.div
-                key={product.name}
-                className="group relative aspect-square overflow-hidden"
-                variants={item}
-              >
-                <Link
-                  href={product.url}
-                  target="_blank"
-                  className="relative z-5 block h-full w-full"
-                  style={{
-                    backgroundImage: `url(${product.image})`,
-                    backgroundSize: "cover",
-                  }}
-                >
-                  <div className="bg-opacity-50 absolute inset-0 flex flex-col items-center justify-center bg-black p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-60">
-                    <h2 className="mb-2 text-xl font-bold text-white">
-                      {product.name}
-                    </h2>
-                    <p className="line-clamp-3 text-center text-sm text-white sm:line-clamp-5">
-                      {product.content}
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 2000,
+                  stopOnMouseEnter: true,
+                  stopOnInteraction: false,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent>
+                {products.map((product) => (
+                  <CarouselItem key={product.name} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                      <motion.div
+                        className="group relative aspect-square overflow-hidden"
+                        variants={item}
+                      >
+                        <Link
+                          href={product.url}
+                          target="_blank"
+                          className="relative z-50 block h-full w-full"
+                          style={{
+                            backgroundImage: `url(${product.image})`,
+                            backgroundSize: "cover",
+                          }}
+                        >
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                            <h2 className="mb-2 text-xl font-bold text-white">
+                              {product.name}
+                            </h2>
+                            <p className="line-clamp-3 text-center text-sm text-white sm:line-clamp-5">
+                              {product.content}
+                            </p>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </motion.div>
         </div>
       </main>

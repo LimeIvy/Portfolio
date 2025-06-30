@@ -7,17 +7,17 @@ export const products = [
     url: "https://github.com/yama4936/MATCHAInext",
   },
   {
-    name: "Wind Quest",
-    image: "/images/WindQuest.png",
-    content:
-      "自分のTailwindCSSスキル向上のために、ゲーム性が大きい勉強サイトが欲しく作成しました。 現在鋭意開発中です。",
-    url: "https://github.com/LimeIvy/WindQuest",
-  },
-  {
     name: "Portfolio",
     image: "/images/Portfolio.png",
     content:
-      "自分のポートフォリオです。 作り始めたばっかのため、これからさらにいろんな要素を追加していく予定です。",
+      "自分のポートフォリオです。 これからさらにいろんな要素を追加していく予定です。",
     url: "https://github.com/LimeIvy/Portfolio",
+  },
+  {
+    name: "SmartIntern",
+    image: "/images/SmartIntern.png",
+    content:
+      "就活管理アプリです。 スケジュールやタスク管理のほかに、Gemini APIを使用して面接対策、ES作成ができます　現在鋭意開発中です。。",
+    url: "https://github.com/LimeIvy/SmartIntern",
   },
 ];
